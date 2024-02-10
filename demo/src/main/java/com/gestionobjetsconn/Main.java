@@ -12,10 +12,7 @@ import com.gestionobjetsconn.models.Capteur;
  
 public class Main {
 
-    // Les détails de connexion à la base de données
-    private static final String DB_URL = "jdbc:postgresql://localhost:5432/gestion_objets_intelligents";
-    private static final String DB_USER = "postgres";
-    private static final String DB_PASSWORD = "admin";
+
 
     private static Actionneur creerActionneur(Scanner scanner) {
         scanner.nextLine();        
@@ -77,17 +74,23 @@ public class Main {
                         break;
                     case 3:
                         // Mettre à jour un appareil
-                        System.out.print("Entrer l'ID de l'appareil à mettre à jour : ");
+                        System.out.println("Entrez l'ID de l'appareil que vous souhaitez mettre à jour :");
                         int idAppareil = scanner.nextInt();
                         
-                        // Demandez à l'utilisateur de saisir le nouvel état (actif/inactif)
-                        System.out.print("Entrer le nouvel état ( 0 = inactif | 1 = actif ): ");
-                        String nouvelEtat = scanner.next();                       
-                        boolean etatTF = nouvelEtat.equals("1");      
-
-                        // Utiliser la méthode appropriée de votre AppareilDAO pour effectuer la mise à jour
-                        appareilDAO.mettreAJourEtatAppareil(idAppareil, etatTF);
-                        break;                        
+                        // Vérifier le type de l'appareil
+                        String typeAppareil = appareilDAO.getTypeAppareil(idAppareil);
+                        if (typeAppareil.equals("Actionneur")) {
+                            // L'appareil est un actionneur   
+                            Actionneur _actionneur = creerActionneur(scanner);
+                            appareilDAO.mettreAJourAppareil(_actionneur, idAppareil);
+                        } else if (typeAppareil.equals("Capteur")) {
+                            // L'appareil est un capteur                            
+                            Capteur _capteur = creerCapteur(scanner);
+                            appareilDAO.mettreAJourAppareil(_capteur, idAppareil);
+                        } else {
+                            System.out.println("Aucun appareil trouvé avec l'ID spécifié.");
+                        }
+                        break;                      
                     case 4:
                         System.out.print("Entrer l'ID de l'appareil à supprimer : ");
                         int idAppareilASupprimer = scanner.nextInt();
