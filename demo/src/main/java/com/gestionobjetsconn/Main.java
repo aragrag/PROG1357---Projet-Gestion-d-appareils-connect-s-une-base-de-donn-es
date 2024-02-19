@@ -1,5 +1,7 @@
 package com.gestionobjetsconn;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Scanner;
 
@@ -7,7 +9,6 @@ import com.gestionobjetsconn.database.AppareilDAO;
 import com.gestionobjetsconn.database.DatabaseConnection;
 import com.gestionobjetsconn.models.Actionneur;
 import com.gestionobjetsconn.models.Capteur;
-import com.gestionobjetsconn.models.ObjetConnecte;
  
 public class Main {
 
@@ -58,7 +59,7 @@ public class Main {
             Scanner scanner = new Scanner(System.in);
             int choix = 0;
 
-            while (choix != 7) {
+            while (choix != 6) {
                 afficherMenu();
                 choix = scanner.nextInt();
 
@@ -100,16 +101,8 @@ public class Main {
                         appareilDAO.afficherAppareils(); // Affiche les appareils
                         break;
                     case 6:
-                        System.out.print("Entrer l'ID de l'appareil à Simuler/Génèree : ");
-                        int idAppareilASimulerGeneree = scanner.nextInt();  
-                        ObjetConnecte  objetConnecte = appareilDAO.getObjetConnecteById(idAppareilASimulerGeneree);
-                        System.out.println(objetConnecte);
-                        objetConnecte.insererDonnees();
-
-                        break;
-                    case 7:
                         System.out.println("Fin du programme.");
-                        break;                        
+                        break;
                     default:
                         System.out.println("Choix invalide, veuillez réessayer.");
                 }
@@ -127,9 +120,7 @@ public class Main {
         System.out.println("3. Mettre à jour l'etat d'un appareil");
         System.out.println("4. Supprimer un appareil");
         System.out.println("5. Affichage des appareils ( Actionneurs/Capteurs )");
-        System.out.println("6. Simuler/Génèree aléatoirement  des données d'un Objet");
-        
-        System.out.println("7. Quitter");
+        System.out.println("6. Quitter");
         System.out.print("\nChoisir une option : \n");
     }
       

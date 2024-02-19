@@ -2,15 +2,12 @@ package com.gestionobjetsconn.database;
 
 import java.sql.Connection;
 import java.sql.Statement;
-import java.util.List;
-
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import com.gestionobjetsconn.models.Actionneur;
 import com.gestionobjetsconn.models.Capteur;
 import com.gestionobjetsconn.models.ObjetConnecte;
-import com.gestionobjetsconn.models.Data;
 
 public class AppareilDAO {
 
@@ -41,53 +38,6 @@ public class AppareilDAO {
         return typeAppareil;
     }
     
-    public ObjetConnecte getObjetConnecteById(int idAppareil) throws SQLException {
-        ObjetConnecte objetConnecte = null;
-
-        if ( getTypeAppareil(idAppareil).equals("Capteur") ) {
-            String sqlCapteur = "SELECT * FROM Capteur INNER JOIN ObjetConnecte ON Capteur.id = ObjetConnecte.id WHERE Capteur.id = ?";
-            try (PreparedStatement pstmt = connection.prepareStatement(sqlCapteur)) {
-                pstmt.setInt(1, idAppareil);
-                ResultSet rs = pstmt.executeQuery();
-                if (rs.next()) {
-                    // Construisez un Capteur à partir des résultats
-                    objetConnecte = new Capteur(
-                        rs.getInt("id"),
-                        rs.getString("nom"),
-                        rs.getString("deviceID"),
-                        rs.getString("adresseIP"),
-                        rs.getBoolean("etat"),
-                        rs.getString("typeMesure"),
-                        rs.getString("uniteMesure")
-                    );
-                }
-            }         
-        }
-
-    
-        if ( getTypeAppareil(idAppareil).equals("Actionneur") ) {
-            String sqlActionneur = "SELECT * FROM Actionneur INNER JOIN ObjetConnecte ON Actionneur.id = ObjetConnecte.id WHERE Actionneur.id = ?";
-            try (PreparedStatement pstmt = connection.prepareStatement(sqlActionneur)) {
-                pstmt.setInt(1, idAppareil);
-                ResultSet rs = pstmt.executeQuery();
-                if (rs.next()) {
-                    // Construisez un Actionneur à partir des résultats
-                    objetConnecte = new Actionneur(
-                        rs.getInt("id"),
-                        rs.getString("nom"),
-                        rs.getString("deviceID"),
-                        rs.getString("adresseIP"),
-                        rs.getBoolean("etat"),
-                        rs.getString("typeAction"),
-                        rs.getString("emplacement")
-                    );
-                }
-            }
-        }
-    
-        return objetConnecte;
-    }
-        
     public void afficherAppareils() throws SQLException {
         String sql = "SELECT * FROM ObjetConnecte LEFT JOIN Actionneur ON ObjetConnecte.id = Actionneur.id LEFT JOIN Capteur ON ObjetConnecte.id = Capteur.id ORDER BY ObjetConnecte.id";
         try (PreparedStatement pstmt = connection.prepareStatement(sql);
@@ -220,18 +170,5 @@ public class AppareilDAO {
             pstmt.executeUpdate();
         }
     }    
-
-    public void insererData(int objetConnecteId, List<Data> donnees) throws SQLException {
-        String sql = "INSERT INTO Data (objetConnecteId, typeData, valeur) VALUES (?, ?, ?)";
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-            for ( Data donnee : donnees) {
-                pstmt.setInt(1, objetConnecteId);
-                pstmt.setString(2, donnee.getTypeData());
-                pstmt.setString(3, donnee.getValeur());
-                pstmt.addBatch();
-            }
-            pstmt.executeBatch();
-        }
-    }
 
 }
