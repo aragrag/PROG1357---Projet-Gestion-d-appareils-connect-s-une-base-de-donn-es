@@ -1,16 +1,16 @@
 package com.gestionobjetsconn.database;
 
+import java.util.Scanner; 
 import java.sql.Connection;
 import java.sql.Statement;
-import java.util.List;
-
+import java.util.Collection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import com.gestionobjetsconn.models.Actionneur;
 import com.gestionobjetsconn.models.Capteur;
 import com.gestionobjetsconn.models.ObjetConnecte;
-import com.gestionobjetsconn.models.Data;
+import com.gestionobjetsconn.models.DonneObject;
 
 public class AppareilDAO {
 
@@ -93,13 +93,14 @@ public class AppareilDAO {
         try (PreparedStatement pstmt = connection.prepareStatement(sql);
              ResultSet resultSet = pstmt.executeQuery()) {
     
-            System.out.println("+----+--------------+----------------+------------------+-------------------+----------------+----------------+-------------------+");
-            System.out.println("| ID |     Nom      |   Adresse IP   |      État        |    Type Action    |   Emplacement  |  Type Mesure   |  Unité Mesure     |");
-            System.out.println("+----+--------------+----------------+------------------+-------------------+----------------+----------------+-------------------+");
-    
+            System.out.println("+----+----------+----------+-------------+--------+-------------+-------------+------------+-------------+");
+            System.out.println("|ID  | Nom      |Device ID | Adresse IP  | État   |Type Action  | Emplacement |Type Mesure |Unité Mesure |");
+            System.out.println("+----+----------+----------+-------------+--------+-------------+-------------+------------+-------------+");
+        
             while (resultSet.next()) {
                 int id = resultSet.getInt("id");
                 String nom = resultSet.getString("nom");
+                String deviceid = resultSet.getString("deviceid");
                 String adresseIP = resultSet.getString("adresseip");
                 boolean etat = resultSet.getBoolean("etat");
                 String etatString = etat ? "actif" : "inactif";
@@ -109,15 +110,15 @@ public class AppareilDAO {
                     String typeAction = resultSet.getString("typeaction");
                     String emplacement = resultSet.getString("emplacement");
                     
-                    System.out.printf("| %-2d | %-12s | %-14s | %-16s | %-17s | %-14s | %-14s | %-17s |\n", id, nom, adresseIP, etatString, typeAction, emplacement, "-", "-");
+                    System.out.printf("|%-4d|%-10s|%-10s|%-13s|%-7s|%-13s|%-13s|%-12s|%-13s|\n", id, nom, deviceid, adresseIP, etatString, typeAction, emplacement, "-", "-");
                 } else if (resultSet.getString("typemesure") != null) {
                     String typeMesure = resultSet.getString("typemesure");
                     String uniteMesure = resultSet.getString("unitemesure");
                     
-                    System.out.printf("| %-2d | %-12s | %-14s | %-16s | %-17s | %-14s | %-14s | %-17s |\n", id, nom, adresseIP, etatString, "-", "-", typeMesure, uniteMesure);
+                    System.out.printf("|%-4d|%-10s|%-10s|%-13s|%-7s|%-13s|%-13s|%-12s|%-13s|\n", id, nom, deviceid, adresseIP, etatString, "-", "-", typeMesure, uniteMesure);
                 }
             }
-            System.out.println("+----+--------------+----------------+------------------+-------------------+----------------+----------------+-------------------+");
+            System.out.println("+----+----------+----------+-------------+--------+-------------+-------------+------------+-------------+");
         }
     }
     
@@ -212,19 +213,46 @@ public class AppareilDAO {
         }
     }
 
-        
-    public void supprimerAppareil(int idAppareil) throws SQLException {
-        String sql = "DELETE FROM ObjetConnecte WHERE id = ?";
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-            pstmt.setInt(1, idAppareil);
-            pstmt.executeUpdate();
-        }
-    }    
+    
 
-    public void insererData(int objetConnecteId, List<Data> donnees) throws SQLException {
+    public void supprimerAppareil() throws SQLException {
+        Scanner scanner1 = new Scanner(System.in); 
+        String idAppareilASupprimer = scanner1.nextLine();        
+        // Check si l'Objet existe ?
+        String checkSql = "SELECT COUNT(*) FROM ObjetConnecte WHERE deviceID = ?";
+        try (PreparedStatement checkStmt = connection.prepareStatement(checkSql)) {
+            checkStmt.setString(1, idAppareilASupprimer);
+            ResultSet resultSet = checkStmt.executeQuery();
+            if (resultSet.next() && resultSet.getInt(1) > 0) {
+                Scanner scanner2 = new Scanner(System.in);  
+                System.out.println("T'es sur de supprimer l'Object avec deviceID: " + idAppareilASupprimer + "? (yes/no)");
+                String userInput = scanner2.nextLine();
+                
+                if ("yes".equalsIgnoreCase(userInput)) {
+                    String sql = "DELETE FROM ObjetConnecte WHERE deviceID = ?";
+                    try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+                        pstmt.setString(1, idAppareilASupprimer);
+                        int affectedRows = pstmt.executeUpdate();
+                        if (affectedRows > 0) {
+                            System.out.println("Device ID: " + idAppareilASupprimer + " bien supprime.");
+                        } else {
+                            System.out.println("Aucune device a ete supprime. Ckeck deviceID et ressai.");
+                        }
+                    }
+                } else {
+                    System.out.println("La suppression est annule.");
+                }
+            } else {
+                // Device does not exist.
+                System.out.println("Device ID: " + idAppareilASupprimer + " n'existe pas.");
+            }
+        }
+    }
+
+    public void insererData(int objetConnecteId, Collection<DonneObject> donnees) throws SQLException {
         String sql = "INSERT INTO Data (objetConnecteId, typeData, valeur) VALUES (?, ?, ?)";
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-            for ( Data donnee : donnees) {
+            for ( DonneObject donnee : donnees) {
                 pstmt.setInt(1, objetConnecteId);
                 pstmt.setString(2, donnee.getTypeData());
                 pstmt.setString(3, donnee.getValeur());
