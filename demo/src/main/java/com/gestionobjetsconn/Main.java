@@ -7,6 +7,7 @@ import com.gestionobjetsconn.database.AppareilDAO;
 import com.gestionobjetsconn.database.DatabaseConnection;
 import com.gestionobjetsconn.models.Actionneur;
 import com.gestionobjetsconn.models.Capteur;
+import com.gestionobjetsconn.models.DonneObject;
 import com.gestionobjetsconn.models.ObjetConnecte;
  
 public class Main {
@@ -91,10 +92,9 @@ public class Main {
                         }
                         break;                      
                     case 4:
-                        System.out.print("Entrer l'ID de l'appareil à supprimer : ");
-                        int idAppareilASupprimer = scanner.nextInt();
-                        appareilDAO.supprimerAppareil(idAppareilASupprimer);
-                    break;
+                        System.out.print("Entrer l'ID device de l'appareil à supprimer : ");
+                        appareilDAO.supprimerAppareil(); // Appel à la méthode de suppression avec l'ID saisi
+                        break;                    
                     case 5:
                         System.out.println("Affichage des appareils :");
                         appareilDAO.afficherAppareils(); // Affiche les appareils

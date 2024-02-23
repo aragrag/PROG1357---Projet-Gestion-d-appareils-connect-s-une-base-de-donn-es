@@ -1,8 +1,8 @@
 package com.gestionobjetsconn.models;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Random;
 
 
@@ -44,15 +44,16 @@ public class Actionneur extends ObjetConnecte {
     public void insererDonnees() {
         try (DatabaseConnection dbConnection = new DatabaseConnection()) {
             Random random = new Random();
-            List<Data> fileDonnees = new ArrayList<>();
+            // List<Donne> fileDonnees = new ArrayList<>();
+            Queue<DonneObject> fileDonnees = new LinkedList<>();
             AppareilDAO appareilDAO = new AppareilDAO(dbConnection.getConnection());
 
             for (int i = 0; i < 10; i++) {
                 String valeurMesure = String.format("%.2f", 10 + (100 - 10) * random.nextDouble());
 
-                Data data = new Data(getTypeAction(), valeurMesure);
+                DonneObject data = new DonneObject(getTypeAction(), valeurMesure);
                 fileDonnees.add(data);
-                System.out.println("Data générée: " + data.getTypeData() + " = " + data.getValeur());
+                System.out.println("Data: " + data.getTypeData() + " = " + data.getValeur());
 
                 try {
                     Thread.sleep(2000); // Pause 2s pour la simulation de données en temps réel provenant de capteurs

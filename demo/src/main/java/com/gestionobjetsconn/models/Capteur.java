@@ -1,12 +1,13 @@
 package com.gestionobjetsconn.models;
 
 import java.sql.SQLException;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Random;
+import java.util.Stack;
+
 
 import com.gestionobjetsconn.database.AppareilDAO;
 import com.gestionobjetsconn.database.DatabaseConnection;
+
 
 // Classe représentant un capteur
 public class Capteur extends ObjetConnecte {
@@ -49,17 +50,18 @@ public class Capteur extends ObjetConnecte {
     public void insererDonnees() {
         try (DatabaseConnection dbConnection = new DatabaseConnection()) {
             Random random = new Random();
-            List<Data> pileDonnees = new LinkedList<>();
+            // List<Donne> pileDonnees = new LinkedList<>();
+            Stack<DonneObject> pileDonnees = new Stack<>();
             AppareilDAO appareilDAO = new AppareilDAO(dbConnection.getConnection());
 
             for (int i = 0; i < 10; i++) {
                 String valeurMesure = String.format("%.2f", 10 + (100 - 10) * random.nextDouble());
 
-                Data data = new Data(getTypeMesure(), valeurMesure);
+                DonneObject data = new DonneObject(getTypeMesure(), valeurMesure);
 
-                pileDonnees.addFirst(data);
+                pileDonnees.add(data);
 
-                System.out.println("Data générée: " + data.getTypeData() + " = " + data.getValeur());
+                System.out.println("Data: " + data.getTypeData() + " = " + data.getValeur());
 
                 try {
                     Thread.sleep(2000); // Pause de 2 secondes

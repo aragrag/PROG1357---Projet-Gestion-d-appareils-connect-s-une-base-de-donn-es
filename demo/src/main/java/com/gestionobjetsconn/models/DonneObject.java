@@ -1,10 +1,10 @@
 package com.gestionobjetsconn.models;
 
-public class Data {
+public class DonneObject {
     private String typeData;
     private String valeur;
 
-    public Data(String typeData, String valeur) {
+    public DonneObject(String typeData, String valeur) {
         this.typeData = typeData;
         this.valeur = valeur;
     }
