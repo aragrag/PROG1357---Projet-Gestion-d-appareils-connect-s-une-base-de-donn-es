@@ -128,9 +128,9 @@ public class AppareilDAO {
         try (PreparedStatement pstmt = connection.prepareStatement(sql);
              ResultSet resultSet = pstmt.executeQuery()) {
     
-            System.out.println("+----+----------+----------+-------------+--------+-------------+-------------+------------+-------------+");
-            System.out.println("|ID  | Nom      |Device ID | Adresse IP  | État   |Type Action  | Emplacement |Type Mesure |Unité Mesure |");
-            System.out.println("+----+----------+----------+-------------+--------+-------------+-------------+------------+-------------+");
+            System.out.println("+----+----------+-------------------+-------------+--------+-------------+-------------+------------+-------------+");
+            System.out.println("|ID  | Nom      |Device ID          | Adresse IP  | État   |Type Action  | Emplacement |Type Mesure |Unité Mesure |");
+            System.out.println("+----+----------+-------------------+-------------+--------+-------------+-------------+------------+-------------+");
     
             while (resultSet.next()) {
                 int id = resultSet.getInt("id");
@@ -145,14 +145,14 @@ public class AppareilDAO {
                 String uniteMesure = resultSet.getString("uniteMesure");
     
                 // Formatter correctement selon que le dispositif est un actionneur ou un capteur
-                System.out.printf("|%-4d|%-10s|%-10s|%-13s|%-7s|%-13s|%-13s|%-12s|%-13s|\n",
+                System.out.printf("|%-4d|%-10s|%-19s|%-13s|%-8s|%-13s|%-13s|%-12s|%-13s|\n",
                                   id, nom, deviceID, adresseIP, etatString, 
                                   typeAction != null ? typeAction : "-", 
                                   emplacement != null ? emplacement : "-", 
                                   typeMesure != null ? typeMesure : "-", 
                                   uniteMesure != null ? uniteMesure : "-");
             }
-            System.out.println("+----+----------+----------+-------------+--------+-------------+-------------+------------+-------------+");
+            System.out.println("+----+----------+-------------------+-------------+--------+-------------+-------------+------------+-------------+");
         }
     }
     

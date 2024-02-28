@@ -29,11 +29,22 @@ public class Main {
 
         return new ObjetConnecte(nom, deviceID, adresseIP, etatTF);
     } 
-
     private static Actionneur creerActionneur(Scanner scanner) {
         scanner.nextLine();        
+
+        try (DatabaseConnection dbConnection = new DatabaseConnection()) {
+            AppareilDAO appareilDAO = new AppareilDAO(dbConnection.getConnection());        
+            appareilDAO.afficherObjetConnectes();
+        
+        } catch (SQLException e) {
+            System.err.println("Erreur lors de la connexion à la base de données : " + e.getMessage());
+        }  
+        System.out.print("Entrer Objet Connecte (UC) : ");
+        int objetConnecteId = scanner.nextInt();    
+
+        scanner.nextLine(); 
         System.out.print("Entrer le nom : ");
-        String nom = scanner.nextLine();   
+        String nom = scanner.nextLine();
           
         System.out.print("Entrer l'etat ( 0 = inactif | 1 = actif )' : ");
         String etat = scanner.nextLine();
@@ -45,12 +56,20 @@ public class Main {
         System.out.print("Entrer l'emplacement : ");
         String emplacement = scanner.nextLine();
 
-        System.out.print("Entrer Objet Connecte (UC) : ");
-        int objetConnecteId = scanner.nextInt();
-
         return new Actionneur(nom, etatTF, typeAction, emplacement, objetConnecteId);
     } 
     private static Capteur creerCapteur(Scanner scanner) {
+        try (DatabaseConnection dbConnection = new DatabaseConnection()) {
+            AppareilDAO appareilDAO = new AppareilDAO(dbConnection.getConnection());        
+            appareilDAO.afficherObjetConnectes();
+        
+        } catch (SQLException e) {
+            System.err.println("Erreur lors de la connexion à la base de données : " + e.getMessage());
+        }    
+        
+        System.out.print("Entrer Objet Connecte (UC) : ");
+        int objetConnecteId = scanner.nextInt();    
+
         scanner.nextLine(); 
         System.out.print("Entrer le nom : ");
         String nom = scanner.nextLine();
@@ -64,9 +83,6 @@ public class Main {
 
         System.out.print("Entrer l'unité de mesure : ");
         String uniteMesure = scanner.nextLine();
-
-        System.out.print("Entrer Objet Connecte (UC) : ");
-        int objetConnecteId = scanner.nextInt();
 
         return new Capteur(nom, etatTF, typeMesure, uniteMesure, objetConnecteId);
         
