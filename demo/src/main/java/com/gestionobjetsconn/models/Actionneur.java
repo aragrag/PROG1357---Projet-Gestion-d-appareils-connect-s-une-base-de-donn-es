@@ -9,17 +9,17 @@ import java.util.Random;
 import com.gestionobjetsconn.database.AppareilDAO;
 import com.gestionobjetsconn.database.DatabaseConnection;
 
-public class Actionneur extends ObjetConnecte {
+public class Actionneur extends Dispositif {
     private String typeAction;
     private String emplacement;
     
-    public Actionneur(int id, String nom, String deviceID,String adresseIP, boolean etat, String typeAction, String emplacement) {
-        super(id, nom, deviceID, adresseIP, etat);
+    public Actionneur(int id, String nom, boolean etat, String typeAction, String emplacement, int objetConnecteId) {
+        super(id, nom, etat, objetConnecteId);
         this.typeAction = typeAction;
         this.emplacement = emplacement;
     }
-    public Actionneur(String nom, String deviceID,String adresseIP, boolean etat, String typeAction, String emplacement) {
-        super(nom, deviceID, adresseIP, etat);
+    public Actionneur(String nom, boolean etat, String typeAction, String emplacement, int objetConnecteId) {
+        super(nom, etat, objetConnecteId);
         this.typeAction = typeAction;
         this.emplacement = emplacement;
     }    
@@ -64,7 +64,7 @@ public class Actionneur extends ObjetConnecte {
 
             }
 
-            appareilDAO.insererData(this.getID(), fileDonnees);
+            // appareilDAO.insererData(this.getID(), fileDonnees);
             dbConnection.close(); // fermer la connexion
         } catch (SQLException e) {
             e.printStackTrace(); 

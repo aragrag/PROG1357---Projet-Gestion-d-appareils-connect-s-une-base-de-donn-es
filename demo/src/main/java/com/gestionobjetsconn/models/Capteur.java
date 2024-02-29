@@ -10,28 +10,23 @@ import com.gestionobjetsconn.database.DatabaseConnection;
 
 
 // Classe représentant un capteur
-public class Capteur extends ObjetConnecte {
-    private int id;
+public class Capteur extends Dispositif {
     private String typeMesure;
     private String uniteMesure;
 
-    public Capteur(int id, String nom, String deviceID, String adresseIP, boolean etat, String typeMesure, String uniteMesure) {
-        super(id, nom, deviceID, adresseIP, etat);
+    public Capteur(int id, String nom, boolean etat, String typeMesure, String uniteMesure, int objetConnecteId) {
+        super(id, nom, etat, objetConnecteId);
         this.typeMesure = typeMesure;
         this.uniteMesure = uniteMesure;
     }
-    public Capteur(String nom, String deviceID, String adresseIP, boolean etat, String typeMesure, String uniteMesure) {
-        super(nom, deviceID, adresseIP, etat);
+    public Capteur(String nom, boolean etat, String typeMesure, String uniteMesure, int objetConnecteId) {
+        super(nom, etat, objetConnecteId);
         this.typeMesure = typeMesure;
         this.uniteMesure = uniteMesure;
     }    
 
     public void mesurer() {
         System.out.println("Capteur " + getNom() + " mesure " + typeMesure);
-    }
-
-    public int getId() {
-        return id;
     }
 
     public String getTypeMesure() {
@@ -72,7 +67,7 @@ public class Capteur extends ObjetConnecte {
 
             }
 
-            appareilDAO.insererData(this.getID(), pileDonnees);
+            // appareilDAO.insererData(this.getID(), pileDonnees);
             dbConnection.close(); // Assurez-vous de fermer la connexion
         } catch (SQLException e) {
             e.printStackTrace(); // Gérer ou logger l'exception
