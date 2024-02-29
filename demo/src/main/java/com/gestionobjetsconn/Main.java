@@ -113,27 +113,65 @@ public class Main {
                         appareilDAO.ajouterCapteur(capteur);
                         break;
                     case 4:
-                        // // Mettre à jour un appareil
-                        // System.out.println("Entrez l'ID de l'appareil que vous souhaitez mettre à jour :");
-                        // int idDispositif = scanner.nextInt();
-                        
-                        // // Vérifier le type de l'appareil
-                        // String typeAppareil = appareilDAO.getTypeDispositif(idDispositif);
-                        // if (typeAppareil.equals("Actionneur")) {
-                        //     // L'appareil est un actionneur   
-                        //     Actionneur _actionneur = creerActionneur(scanner);
-                        //     appareilDAO.mettreAJourAppareil(_actionneur, idDispositif);
-                        // } else if (typeAppareil.equals("Capteur")) {
-                        //     // L'appareil est un capteur                            
-                        //     Capteur _capteur = creerCapteur(scanner);
-                        //     appareilDAO.mettreAJourAppareil(_capteur, idDispositif);
-                        // } else {
-                        //     System.out.println("Aucun appareil trouvé avec l'ID spécifié.");
-                        // }
+                        Scanner scan = new Scanner(System.in);
+
+                        System.out.println("Voulez-vous mettre à jour un ObjetConnecte ou un Dispositif? (O/D)");
+                        String ObjetConnecte_or_Dispositif = scan.nextLine().trim().toUpperCase();
+                
+                        if ("O".equals(ObjetConnecte_or_Dispositif)) {
+                            // Logique de mise à jour pour ObjetConnecte
+                            System.out.println("Entrez le nom de l'ObjetConnecte que vous souhaitez mettre à jour :");
+                            String nomObjetConnecte = scan.nextLine();
+
+                            // Appel de getIdParNomAppareil et vérification si le résultat est null
+                            Integer idObjetConnecte = appareilDAO.getIdParNomAppareil(nomObjetConnecte);
+
+                            if (idObjetConnecte != null) {
+                                objetConnecte = creerObjetConnecte(scanner);
+                                appareilDAO.mettreAJourAppareil(objetConnecte, idObjetConnecte);                                
+                            } else {
+                                System.out.println("Objet Connecte n'existe pas.");
+                            }
+
+                        } else if ("D".equals(ObjetConnecte_or_Dispositif)) {
+                            // Mise à jour pour Dispositif
+                            System.out.println("Entrez le nom du Dispositif que vous souhaitez mettre à jour :");
+                            String nomDispositif = scan.nextLine();
+                            
+                            // Appel de getIdParNomAppareil et vérification si le résultat est null
+                            Integer idDispositif = appareilDAO.getIdParNomAppareil(nomDispositif);
+                            
+                            if (idDispositif != null) {
+                                // Vérifier le type de l'appareil
+                                String typeAppareil = appareilDAO.getTypeAppareil(idDispositif);
+                                if (typeAppareil.equals("Actionneur")) {
+                                    // L'appareil est un actionneur
+                                    actionneur = creerActionneur(scanner);
+                                    appareilDAO.mettreAJourAppareil(actionneur, idDispositif);
+                                } else if (typeAppareil.equals("Capteur")) {
+                                    // L'appareil est un capteur
+                                    capteur = creerCapteur(scanner);
+                                    appareilDAO.mettreAJourAppareil(capteur, idDispositif);
+                                } else {
+                                    System.out.println("Aucun dispositif trouvé avec l'ID spécifié.");
+                                }
+                            } else {
+                                System.out.println("Dispositif n'existe pas.");
+                            }
+
+                        } else {
+                            System.out.println("Choix invalide.");
+                        }
                         break;                      
                     case 5:
-                        System.out.print("Entrer l'ID device de l'appareil à supprimer : ");
-                        appareilDAO.supprimerAppareil(); // Appel à la méthode de suppression avec l'ID saisi
+                        Scanner scan1 = new Scanner(System.in);
+                        System.out.print("Entrer le nom de l'appareil (O/D) à supprimer : ");
+                        String nomAppareil = scan1.nextLine();
+                        
+                        // Appel de getIdParNomAppareil et vérification si le résultat est null
+                        // Integer idAppareil = appareilDAO.getIdParNomAppareil(nomAppareil);
+
+                        appareilDAO.supprimerAppareilParNom(nomAppareil); // Appel à la méthode de suppression avec l'ID saisi
                         break;                    
                     case 6:
                         System.out.println("Affichage des appareils ( UCs ) :");
@@ -169,8 +207,8 @@ public class Main {
         System.out.println("1. Ajouter un appareil ( UC )");
         System.out.println("2. Ajouter un Actionneur");
         System.out.println("3. Ajouter un Capteur");
-        System.out.println("4. Mettre à jour l'etat d'un appareil");
-        System.out.println("5. Supprimer un appareil");
+        System.out.println("4. Mettre à jour l'etat d'un appareil (O/D)");
+        System.out.println("5. Supprimer un appareil (O/D)");
         System.out.println("6. Affichage des appareils ( UCs )");
         System.out.println("7. Affichage des appareils ( Actionneurs/Capteurs )");
         System.out.println("8. Simuler/Génèree aléatoirement  des données d'un Objet");
