@@ -2,7 +2,7 @@
 #include <SPI.h>
 #include <WiFiNINA.h>
 
-#define DEVICE_ID "M001"
+#define DEVICE_ID "M002"
 
 // réseau Wi-Fi
 const char* ssid     = "MA_4G";
