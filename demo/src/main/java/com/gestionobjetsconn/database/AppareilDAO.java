@@ -3,7 +3,10 @@ package com.gestionobjetsconn.database;
 import java.util.Scanner; 
 import java.sql.Connection;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -16,6 +19,8 @@ import com.gestionobjetsconn.models.DonneObject;
 public class AppareilDAO {
 
     private Connection connection;
+
+    private static Queue<DonneObject> queue = new LinkedList<>();
 
     public AppareilDAO(Connection connection) {
         this.connection = connection;
@@ -397,7 +402,38 @@ public class AppareilDAO {
         }
     }
     
-    
+
+    public void insererDonneesEnMasse(Collection<DonneObject> donnees) throws SQLException {
+        String sql = "INSERT INTO Data (objetConnecteId, typeData, valeur) VALUES (?, ?, ?)";
+        connection.setAutoCommit(false); // Pour gérer la transaction manuellement
+
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            for (DonneObject donnee : donnees) {
+                pstmt.setInt(1, donnee.getIDbyName(donnee.getdeviceID()));
+                pstmt.setString(2, donnee.getTypeData());
+                pstmt.setString(3, donnee.getValeur());
+                pstmt.addBatch();
+            }
+            pstmt.executeBatch();
+            connection.commit(); // Commit la transaction si tout s'est bien passé
+        } catch (SQLException e) {
+            connection.rollback(); // Rollback la transaction en cas d'erreur
+            throw e;
+        } finally {
+            connection.setAutoCommit(true); // Remet le comportement de commit par défaut
+        }
+    }
+ 
+    public synchronized void enqueueData(DonneObject donneObject) throws SQLException {
+        queue.offer(donneObject);
+        System.err.println(queue.size());
+
+        // Vérifier si la taille de la queue dépasse le seuil pour l'insertion en masse
+        if (queue.size() >= 20) {
+            insererDonneesEnMasse(queue);
+            queue.clear(); // Nettoyer la queue après l'insertion
+        }
+    }
 
     // public void insererData(int objetConnecteId, Collection<DonneObject> donnees) throws SQLException {
     //     String sql = "INSERT INTO Data (objetConnecteId, typeData, valeur) VALUES (?, ?, ?)";

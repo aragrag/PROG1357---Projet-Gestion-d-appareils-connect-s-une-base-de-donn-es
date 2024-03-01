@@ -1,15 +1,31 @@
 package com.gestionobjetsconn;
 
+import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.sql.SQLException;
 import java.util.Scanner;
 
+import com.gestionobjetsconn.AppHttpServer.DataHandler;
 import com.gestionobjetsconn.database.AppareilDAO;
 import com.gestionobjetsconn.database.DatabaseConnection;
 import com.gestionobjetsconn.models.Actionneur;
 import com.gestionobjetsconn.models.Capteur;
 import com.gestionobjetsconn.models.DonneObject;
 import com.gestionobjetsconn.models.ObjetConnecte;
- 
+
+
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpHandler;
+import com.sun.net.httpserver.HttpServer;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.InetSocketAddress;
+import com.gestionobjetsconn.AppHttpServer;
+
+
 public class Main {
 
     private static ObjetConnecte creerObjetConnecte(Scanner scanner) {
@@ -89,7 +105,19 @@ public class Main {
     }   
     
     
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
+        int port = 8000;
+        HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
+        
+        // Associer le gestionnaire de données au chemin "/receive-data"
+        server.createContext("/receive-data", new AppHttpServer.DataHandler());
+        
+        // Démarrer le serveur
+        server.start();
+        
+        System.out.println("Server started on port " + port);
+        
+        
         try (DatabaseConnection dbConnection = new DatabaseConnection()) {
             AppareilDAO appareilDAO = new AppareilDAO(dbConnection.getConnection());
             Scanner scanner = new Scanner(System.in);
@@ -167,9 +195,6 @@ public class Main {
                         Scanner scan1 = new Scanner(System.in);
                         System.out.print("Entrer le nom de l'appareil (O/D) à supprimer : ");
                         String nomAppareil = scan1.nextLine();
-                        
-                        // Appel de getIdParNomAppareil et vérification si le résultat est null
-                        // Integer idAppareil = appareilDAO.getIdParNomAppareil(nomAppareil);
 
                         appareilDAO.supprimerAppareilParNom(nomAppareil); // Appel à la méthode de suppression avec l'ID saisi
                         break;                    
@@ -187,6 +212,7 @@ public class Main {
                         // ObjetConnecte  objetConnecte = appareilDAO.getObjetConnecteById(idAppareilASimulerGeneree);
                         // System.out.println(objetConnecte);
                         // objetConnecte.insererDonnees();
+
 
                         break;
                     case 9:

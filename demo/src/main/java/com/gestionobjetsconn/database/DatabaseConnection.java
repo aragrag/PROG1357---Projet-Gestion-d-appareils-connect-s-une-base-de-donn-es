@@ -31,7 +31,7 @@ public class DatabaseConnection implements AutoCloseable {
                     String sqlCreate = "CREATE DATABASE gestion_objets_intelligents";
                     statement.executeUpdate(sqlCreate);
                 }
-                System.out.println("Connexion à la base de données réussie.");
+                // System.out.println("Connexion à la base de données réussie.");
             } catch (SQLException e) {
                 e.printStackTrace();
                 throw new SQLException("Erreur lors de la création de la base de données", e);

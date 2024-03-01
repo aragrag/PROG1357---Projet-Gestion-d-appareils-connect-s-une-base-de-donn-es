@@ -1,0 +1,10 @@
+com\gestionobjetsconn\models\DonneObject.class
+com\gestionobjetsconn\models\Dispositif.class
+com\gestionobjetsconn\models\ObjetConnecte.class
+com\gestionobjetsconn\servlets\DonneeServlet.class
+com\gestionobjetsconn\Main.class
+com\gestionobjetsconn\database\AppareilDAO.class
+com\gestionobjetsconn\database\DatabaseConnection.class
+com\gestionobjetsconn\models\Capteur.class
+com\gestionobjetsconn\models\Actionneur.class
+com\gestionobjetsconn\models\Entity.class
