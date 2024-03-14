@@ -49,6 +49,11 @@ public class ObjetConnecte {
     public boolean getEtat() {   
         return etat;
     }
+
+    public void setNom(String nom) {
+        this.nom = nom;
+    }  
+
     // Méthodes pour ajouter et retirer des dispositifs
     public void ajouterDispositif(Dispositif dispositif) {
         dispositifs.add(dispositif);
@@ -61,5 +66,6 @@ public class ObjetConnecte {
     public String toString() {
         return String.format("ID: %d, Nom: %s, DeviceID: %s, Adresse IP: %s, État: %s", 
             this.getID(), nom, deviceID, adresseIP, etat ? "actif" : "inactif");
-    }       
+    }
+     
 }

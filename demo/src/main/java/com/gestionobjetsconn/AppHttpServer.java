@@ -1,10 +1,12 @@
-
 package com.gestionobjetsconn;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.gestionobjetsconn.database.AppareilDAO;
 import com.gestionobjetsconn.database.DatabaseConnection;
+import com.gestionobjetsconn.models.Actionneur;
+import com.gestionobjetsconn.models.Capteur;
 import com.gestionobjetsconn.models.DonneObject;
+import com.gestionobjetsconn.models.ObjetConnecte;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
@@ -15,70 +17,74 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.sql.SQLException;
+import java.util.stream.Collectors;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
 public class AppHttpServer {
 
-    static class DataHandler implements HttpHandler {
+
+
+    static class GeneralHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
-            if (exchange.getRequestMethod().equalsIgnoreCase("POST")) {
-                // Read JSON data from the request body
-                StringBuilder sb = new StringBuilder();
-                try (BufferedReader br = new BufferedReader(new InputStreamReader(exchange.getRequestBody()))) {
-                    String line;
-                    while ((line = br.readLine()) != null) {
-                        sb.append(line);
-                    }
-                }
-                
-                String json = sb.toString();
-
-                // Log received data
-                System.out.println("Received data: " + json);
-
-                // Parse JSON into DonneObject
-                DonneObject donneObject = parseJson(json);
-
-                // Process the received data
-                String response;
-                if (donneObject != null) {
-                    response = "Data received successfully: " + donneObject.toString();
-                    try (DatabaseConnection dbConnection = new DatabaseConnection()) {
-                        AppareilDAO appareilDAO = new AppareilDAO(dbConnection.getConnection());        
-                        appareilDAO.enqueueData(donneObject);
-                    
-                    } catch (SQLException e) {
-                        System.err.println("Erreur lors de la connexion à la base de données : " + e.getMessage());
-                    }                     
-                } else {
-                    response = "Failed to parse JSON data";
-                }
-
-                // Send response
-                exchange.sendResponseHeaders(200, response.getBytes().length);
-                try (OutputStream os = exchange.getResponseBody()) {
-                    os.write(response.getBytes());
-                }
-            } else {
-                exchange.sendResponseHeaders(405, -1); // Method Not Allowed
+            if (!"POST".equalsIgnoreCase(exchange.getRequestMethod())) {
+                sendResponse(exchange, 405, "Method Not Allowed");
+                return;
             }
-        }
 
-        private DonneObject parseJson(String json) {
-            try {
+            String path = exchange.getRequestURI().getPath();
+            String json = readRequestBody(exchange);
+            System.out.println("Received data: " + json);
+
+            try (DatabaseConnection dbConnection = new DatabaseConnection()) {
+                AppareilDAO appareilDAO = new AppareilDAO(dbConnection.getConnection());
+                Object entity = null;
                 Gson gson = new Gson();
-                return gson.fromJson(json, DonneObject.class);
-            } catch (JsonSyntaxException e) {
-                System.out.println("JSON syntax error: " + e.getMessage());
-            } catch (Exception e) {
-                System.out.println("General error: " + e.getMessage());
-            }
-            return null;
-        }
+                switch (path) {
+                    case "/receive-data":
+                        
+                        DonneObject donneObject =  gson.fromJson(json, DonneObject.class);
+                        appareilDAO.enqueueData(donneObject);
+                        break;
+                    case "/objetsconnecte":
+                        entity = gson.fromJson(json, ObjetConnecte.class);
+                        appareilDAO.ajouterObjetConnecte((ObjetConnecte) entity);
+                        break;
+                    case "/actionneur":
+                        entity = gson.fromJson(json, Actionneur.class);
+                        appareilDAO.ajouterActionneur((Actionneur) entity);
+                        break;
+                    case "/capteur":
+                        Capteur capteur =  gson.fromJson(json, Capteur.class);
+                        appareilDAO.ajouterCapteur(capteur);
+                        break;
+                    default:
+                        sendResponse(exchange, 404, "Not Found");
+                        return;
+                }
 
-        
+                sendResponse(exchange, 200, gson.toJson(entity) + " processed successfully.");
+            } catch (SQLException e) {
+                e.printStackTrace();
+                sendResponse(exchange, 500, "Database error: " + e.getMessage());
+            } catch (JsonSyntaxException e) {
+                sendResponse(exchange, 400, "JSON syntax error: " + e.getMessage());
+            }
+        }
+    }
+
+    private static String readRequestBody(HttpExchange exchange) throws IOException {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(exchange.getRequestBody()))) {
+            return reader.lines().collect(Collectors.joining("\n"));
+        }
+    }
+
+    private static void sendResponse(HttpExchange exchange, int statusCode, String response) throws IOException {
+        exchange.sendResponseHeaders(statusCode, response.getBytes().length);
+        try (OutputStream os = exchange.getResponseBody()) {
+            os.write(response.getBytes());
+        }
     }
 }

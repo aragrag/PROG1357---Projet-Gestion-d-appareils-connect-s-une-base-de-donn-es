@@ -2,10 +2,11 @@ package com.gestionobjetsconn;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Scanner;
 
-import com.gestionobjetsconn.AppHttpServer.DataHandler;
 import com.gestionobjetsconn.database.AppareilDAO;
 import com.gestionobjetsconn.database.DatabaseConnection;
 import com.gestionobjetsconn.models.Actionneur;
@@ -104,13 +105,37 @@ public class Main {
         
     }   
     
-    
+    private static void afficherMenu() {
+        System.out.println("Menu:");
+        System.out.println("1. Ajouter un appareil ( UC )");
+        System.out.println("2. Ajouter un Actionneur");
+        System.out.println("3. Ajouter un Capteur");
+        System.out.println("4. Mettre à jour l'etat d'un appareil (O/D)");
+        System.out.println("5. Supprimer un appareil (O/D)");
+        System.out.println("6. Affichage des appareils ( UCs )");
+        System.out.println("7. Affichage des appareils ( Actionneurs/Capteurs )");
+        System.out.println("8. Simuler/Génèree aléatoirement  des données d'un Objet");
+        
+        System.out.println("9. Quitter");
+        System.out.print("\nChoisir une option : \n");
+    }
+          
     public static void main(String[] args) throws IOException {
         int port = 8000;
         HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
         
         // Associer le gestionnaire de données au chemin "/receive-data"
-        server.createContext("/receive-data", new AppHttpServer.DataHandler());
+        server.createContext("/receive-data", new AppHttpServer.GeneralHandler());
+
+        // Associer le gestionnaire de données au chemin "/objetsconnectes"
+        server.createContext("/objetsconnecte", new AppHttpServer.GeneralHandler());  
+        
+        // Associer le gestionnaire de données au chemin "/actionneur"
+        server.createContext("/actionneur", new AppHttpServer.GeneralHandler());          
+   
+        // Associer le gestionnaire de données au chemin "/capteur"
+        server.createContext("/capteur", new AppHttpServer.GeneralHandler());  
+        
         
         // Démarrer le serveur
         server.start();
@@ -228,19 +253,5 @@ public class Main {
     }
 
    
-    private static void afficherMenu() {
-        System.out.println("Menu:");
-        System.out.println("1. Ajouter un appareil ( UC )");
-        System.out.println("2. Ajouter un Actionneur");
-        System.out.println("3. Ajouter un Capteur");
-        System.out.println("4. Mettre à jour l'etat d'un appareil (O/D)");
-        System.out.println("5. Supprimer un appareil (O/D)");
-        System.out.println("6. Affichage des appareils ( UCs )");
-        System.out.println("7. Affichage des appareils ( Actionneurs/Capteurs )");
-        System.out.println("8. Simuler/Génèree aléatoirement  des données d'un Objet");
-        
-        System.out.println("9. Quitter");
-        System.out.print("\nChoisir une option : \n");
-    }
-      
+   
 }
