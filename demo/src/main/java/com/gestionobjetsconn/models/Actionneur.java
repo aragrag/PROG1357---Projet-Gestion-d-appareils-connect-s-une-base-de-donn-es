@@ -27,16 +27,16 @@ public class Actionneur extends Dispositif {
     } 
     public void actionner() {
         System.out.println("Actionneur " + getNom() + " effectue une action de type " + typeAction);
-    }
-    public  int getID() {
-        return id;    
-    }    
+    }  
     public void setTypeAction(String typeAction) {
         this.typeAction = typeAction;    
     }
     public void setEmplacement(String emplacement) {
         this.emplacement = emplacement;    
     }
+    public  int getID() {
+        return id;    
+    }      
     public String getTypeAction() {
         return typeAction;    
     }

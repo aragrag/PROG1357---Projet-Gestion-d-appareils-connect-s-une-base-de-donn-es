@@ -84,12 +84,11 @@ public class AppHttpServer {
                     handleActionneurs(exchange, method, path, appareilDAO, gson);
                 } else if (path.matches("^/actionneur")) {
                     handleActionneurs(exchange, method, path, appareilDAO, gson);
-                } else if (path.equals("/capteur") && "POST".equalsIgnoreCase(method)) {
-                        String requestBody = readRequestBody(exchange);
-                        Capteur capteur = gson.fromJson(requestBody, Capteur.class);
-                        appareilDAO.ajouterCapteur(capteur);
-                        responseJson = gson.toJson(capteur) + " added successfully.";                    
-                }  else if (path.equals("/objetsconnectes") && "GET".equalsIgnoreCase(method)) {
+                }  else if (path.matches("^/capteur(/\\d+)?$")) {
+                    handleCapteurs(exchange, method, path, appareilDAO, gson);
+                } else if (path.matches("^/capteur")) {
+                    handleCapteurs(exchange, method, path, appareilDAO, gson);                    
+                } else if (path.equals("/objetsconnectes") && "GET".equalsIgnoreCase(method)) {
                     List<ObjetConnecte> objetsConnectes = appareilDAO.afficherObjetConnectes();
                     responseJson = gson.toJson(objetsConnectes);
                 } else {
@@ -201,6 +200,59 @@ public class AppHttpServer {
                     Actionneur actionneur = gson.fromJson(requestBody, Actionneur.class);
                     appareilDAO.ajouterActionneur(actionneur);
                     responseJson = gson.toJson(actionneur) + " added successfully.";
+                }  
+            } else {
+                statusCode = 404;
+                responseJson = "Not Found 11";
+                sendResponse(exchange, statusCode, responseJson);
+            }
+        }      
+        private void handleCapteurs(HttpExchange exchange, String method, String path, AppareilDAO appareilDAO, Gson gson) throws IOException, SQLException {
+            String responseJson;
+            int statusCode = 200;
+            // Specific handling for /objetsconnecte/:id
+            if (path.matches("^/capteur/\\d+$")) {
+                
+                int id = Integer.parseInt(path.split("/")[2]);
+                if ("GET".equalsIgnoreCase(method)) {
+                    Capteur capteur = appareilDAO.fetchCapteurById(id); // Implement this method in your DAO
+                    String jsonResponse = new Gson().toJson(capteur);
+                    sendResponse(exchange, 200, jsonResponse);
+                } else if ("PUT".equalsIgnoreCase(method)) {
+                    String requestBody = readRequestBody(exchange);
+                    Capteur updatedCapteur = new Gson().fromJson(requestBody, Capteur.class);
+                    updatedCapteur.setID(id);
+                    boolean updated = appareilDAO.updateCapteur(updatedCapteur);
+                    if (updated) {
+                        sendResponse(exchange, 200, "Object Updated Successfully");
+                    } else {
+                        sendResponse(exchange, 500, "Internal Server Error");
+                    }
+                } else if ("DELETE".equalsIgnoreCase(method)) {
+                    // Delete the object from the database
+                    boolean deleted = appareilDAO.deleteCapteurById(id);
+                    if (deleted) {
+                        sendResponse(exchange, 200, "Object Deleted Successfully");
+                    } else {
+                        sendResponse(exchange, 500, "Internal Server Error");
+                    }
+                } else {
+                    statusCode = 405;
+                    responseJson = "Method Not Allowed";
+                }
+            } else if (path.equals("/objetsconnecte") && "POST".equalsIgnoreCase(method)) {
+                // Add new objet connecte logic here
+                String requestBody = readRequestBody(exchange);
+                ObjetConnecte objetConnecte = gson.fromJson(requestBody, ObjetConnecte.class);
+                appareilDAO.ajouterObjetConnecte(objetConnecte);
+                responseJson = gson.toJson(objetConnecte) + " added successfully.";
+                sendResponse(exchange, statusCode, responseJson);
+            } else if (path.matches("^/capteur")) {
+                if ("POST".equalsIgnoreCase(method)) {
+                    String requestBody = readRequestBody(exchange);
+                    Capteur capteur = gson.fromJson(requestBody, Capteur.class);
+                    appareilDAO.ajouterCapteur(capteur);
+                    responseJson = gson.toJson(capteur) + " added successfully.";
                 }  
             } else {
                 statusCode = 404;

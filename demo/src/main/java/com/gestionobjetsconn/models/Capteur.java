@@ -26,14 +26,21 @@ public class Capteur extends Dispositif {
     public void mesurer() {
         System.out.println("Capteur " + getNom() + " mesure " + typeMesure);
     }
-
+    public void setID(int id) {
+        this.id = id;
+    } 
     public String getTypeMesure() {
         return typeMesure;
     }
-
+    public  int getID() {
+        return id;    
+    }  
     public String getUniteMesure() {
         return uniteMesure;
     }
+    public  int getobjetConnecteId() {
+        return objetConnecteId;    
+    }     
     @Override
     public String toString() {
         return super.toString() + ", Type de Mesure: " + typeMesure + ", Unité de Mesure: " + uniteMesure;

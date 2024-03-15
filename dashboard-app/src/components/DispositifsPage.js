@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { fetchActionneursByObjetConnecteId, fetchCapteursByObjetConnecteId, deleteActionneur, deleteCapteur } from '../services/DataServices';
+import { fetchActionneursByObjetConnecteId, fetchCapteursByObjetConnecteId, deleteActionneur, deleteCapteur, fetchObjetConnecteById } from '../services/DataServices';
 import ConfirmModal from './ConfirmModal2';
 
 const DispositifsPage = () => {
     const { id } = useParams();
     const [actionneurs, setActionneurs] = useState([]);
     const [capteurs, setCapteurs] = useState([]);
+    const [objetConnecte, setObjetConnecte] = useState({});
     const [showConfirm, setShowConfirm] = useState(false);
     const [selectedId, setSelectedId] = useState(null);
     const [selectedType, setSelectedType] = useState(null);
     const navigate = useNavigate();
+
 
     const handleEdit = (itemId, type) => {
         navigate(`/${type}/${itemId}`);
@@ -40,16 +42,19 @@ const DispositifsPage = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
+                const objConnecteResponse = await fetchObjetConnecteById(id);
+                setObjetConnecte(objConnecteResponse.data);
                 const actionneursResponse = await fetchActionneursByObjetConnecteId(id);
                 const capteursResponse = await fetchCapteursByObjetConnecteId(id);
                 setActionneurs(actionneursResponse.data);
                 setCapteurs(capteursResponse.data);
             } catch (error) {
-                console.error('Error fetching dispositifs:', error);
+                console.error('Error fetching data:', error);
             }
         };
         fetchData();
     }, [id]);
+
     const handleAddCapteur = () => {
         navigate('/capteur');
     };
@@ -58,10 +63,10 @@ const DispositifsPage = () => {
     };    
     return (
         <div className="container mt-5">
-            <h2>Dispositifs for ObjetConnecte ID: {id}</h2>
+            <h2 className='mb-5'>Dispositifs for {objetConnecte.nom ? objetConnecte.nom : `ObjetConnecte ID: ${id}`}</h2>
             <div className="row">
                 <div className="col-6">
-                    <h3>Actionneurs</h3>
+                    <h3 className='mb-4'>Actionneurs</h3>
                     <button onClick={handleAddActionneur} className="btn btn-primary mb-3">Add New Actionneur</button>
                     <table className="table table-striped">
                         <thead>
@@ -86,8 +91,8 @@ const DispositifsPage = () => {
                     </table>
                 </div>
                 <div className="col-6">
-                    <h3>Capteurs</h3>
-                    <button onClick={handleAddCapteur} className="btn btn-primary mb-3">Add New Actionneur</button>
+                    <h3 className='mb-4'>Capteurs</h3>
+                    <button onClick={handleAddCapteur} className="btn btn-primary mb-3">Add New Capteur</button>
                     <table className="table table-striped">
                         <thead>
                             <tr>

@@ -5,6 +5,7 @@ import ObjetConnecteForm from './components/ObjetConnecteForm';
 import ObjetsConnectesPage from './components/ObjetsConnectesPage';
 import DispositifsPage from './components/DispositifsPage';
 import ActionneurForm from './components/ActionneurForm';
+import CapteurForm from './components/CapteurForm';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
@@ -18,6 +19,8 @@ function App() {
           <Route path="/objetsconnecte/:id/dispositifs" element={<DispositifsPage />} />          
           <Route path="/actionneur" element={<ActionneurForm />} />          
           <Route path="/actionneur/:id" element={<ActionneurForm isEditing={true} />} />
+          <Route path="/capteur" element={<CapteurForm />} />          
+          <Route path="/capteur/:id" element={<CapteurForm isEditing={true} />} />
         </Routes>
       </div>
     </Router>

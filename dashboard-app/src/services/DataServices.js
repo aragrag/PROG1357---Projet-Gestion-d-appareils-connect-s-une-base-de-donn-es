@@ -57,6 +57,18 @@ const deleteActionneur = (id) => {
     return axios.delete(`${BASE_URL}/actionneur/${id}`);
 };
 
+const fetchCapteurById = (id) => {
+    return axios.get(`${BASE_URL}/capteur/${id}`);
+};
+
+// Add a new objet Capteur
+const addCapteur = (Capteur) => {
+    return axios.post(`${BASE_URL}/capteur`, Capteur);
+};
+const updateCapteur = (id, Capteur) => {
+    return axios.put(`${BASE_URL}/capteur/${id}`, Capteur);
+};
+
 const deleteCapteur = (id) => {
     return axios.delete(`${BASE_URL}/capteur/${id}`);
 };
@@ -75,5 +87,8 @@ export {
     fetchCapteursByObjetConnecteId,
     addActionneur,
     fetchActionneurById,
-    updateActionneur
+    updateActionneur,
+    addCapteur,
+    fetchCapteurById,
+    updateCapteur
 };

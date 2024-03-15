@@ -122,7 +122,7 @@ public class Main {
         server.createContext("/actionneur", new AppHttpServer.GeneralHandler());          
    
         // Associer le gestionnaire de données au chemin "/capteur"
-        server.createContext("/capteurs", new AppHttpServer.GeneralHandler());  
+        server.createContext("/capteur", new AppHttpServer.GeneralHandler());  
         
         // Associer le gestionnaire de données au chemin "/objetsconnectes"
         server.createContext("/objetsconnectes", new AppHttpServer.GeneralHandler());

@@ -606,7 +606,25 @@ public class AppareilDAO {
         }
         return null;
     }
-
+    public Capteur fetchCapteurById(int id) throws SQLException {
+        String sql = "SELECT a.dispositifId, d.nom, d.etat, a.typeMesure, a.uniteMesure, d.objetConnecteId FROM Capteur a INNER JOIN Dispositif d ON a.dispositifId = d.id WHERE d.id = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setInt(1, id);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return new Capteur(
+                        rs.getInt("dispositifId"),
+                        rs.getString("nom"),
+                        rs.getBoolean("etat"),
+                        rs.getString("typeMesure"),
+                        rs.getString("uniteMesure"),
+                        rs.getInt("objetConnecteId")
+                    );
+                }
+            }
+        }
+        return null;
+    }
     public boolean updateActionneur(Actionneur actionneur) throws SQLException {
         boolean updated = false;
         String updateDispositifSql = "UPDATE Dispositif SET nom = ?, etat = ? , objetConnecteId = ? WHERE id = ?";
@@ -639,7 +657,37 @@ public class AppareilDAO {
         return updated;
     }
     
-
+    public boolean updateCapteur(Capteur capteur) throws SQLException {
+        boolean updated = false;
+        String updateDispositifSql = "UPDATE Dispositif SET nom = ?, etat = ? , objetConnecteId = ? WHERE id = ?";
+        String updateCapteurSql = "UPDATE Capteur SET typeMesure = ?, uniteMesure = ? WHERE dispositifId = ?";
+        
+        try (
+            PreparedStatement updateDispositifStmt = connection.prepareStatement(updateDispositifSql);
+            PreparedStatement updateCapteurStmt = connection.prepareStatement(updateCapteurSql);
+        ) {
+            // Mise à jour dans la table Dispositif
+            updateDispositifStmt.setString(1, capteur.getNom());
+            updateDispositifStmt.setBoolean(2, capteur.getEtat());
+            updateDispositifStmt.setInt(3, capteur.getobjetConnecteId()); // Ici, 'id' est l'ID du dispositif
+            updateDispositifStmt.setInt(4, capteur.getID()); // Ici, 'id' est l'ID du dispositif
+            int dispositifRowsUpdated = updateDispositifStmt.executeUpdate();
+    
+            // Mise à jour dans la table Actionneur
+            updateCapteurStmt.setString(1, capteur.getTypeMesure());
+            updateCapteurStmt.setString(2, capteur.getUniteMesure());
+            updateCapteurStmt.setInt(3, capteur.getID()); // Ici, 'id' est l'ID du dispositif
+            int actionneurRowsUpdated = updateCapteurStmt.executeUpdate();
+    
+            // Vérifie si les deux mises à jour ont réussi
+            updated = (dispositifRowsUpdated > 0 && actionneurRowsUpdated > 0);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            // Gérer l'exception comme vous le jugez nécessaire
+        }
+    
+        return updated;
+    }
     
     public boolean deleteActionneurById(int id) throws SQLException {
         String sql = "DELETE FROM Actionneur WHERE dispositifId = ?";
@@ -650,6 +698,14 @@ public class AppareilDAO {
             return rowsDeleted > 0;
         }
     }
-
+    public boolean deleteCapteurById(int id) throws SQLException {
+        String sql = "DELETE FROM Capteur WHERE dispositifId = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setInt(1, id);
+    
+            int rowsDeleted = pstmt.executeUpdate();
+            return rowsDeleted > 0;
+        }
+    }
          
 }
