@@ -3,10 +3,10 @@ package com.gestionobjetsconn.models;
 import java.sql.SQLException;
 
 public abstract class Dispositif {
-    private int id;
-    private String nom;
+    public int id;
+    public String nom;
     private boolean etat; // Actif ou inactif
-    private int objetConnecteId;
+    protected int objetConnecteId;
 
     public Dispositif(int id, String nom, boolean etat, int objetConnecteId) {
         this.id = id;

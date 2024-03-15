@@ -5,8 +5,7 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Random;
 
-
-import com.gestionobjetsconn.database.AppareilDAO;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import com.gestionobjetsconn.database.DatabaseConnection;
 
 public class Actionneur extends Dispositif {
@@ -23,11 +22,21 @@ public class Actionneur extends Dispositif {
         this.typeAction = typeAction;
         this.emplacement = emplacement;
     }    
-
+    public void setID(int id) {
+        this.id = id;
+    } 
     public void actionner() {
         System.out.println("Actionneur " + getNom() + " effectue une action de type " + typeAction);
     }
-
+    public  int getID() {
+        return id;    
+    }    
+    public void setTypeAction(String typeAction) {
+        this.typeAction = typeAction;    
+    }
+    public void setEmplacement(String emplacement) {
+        this.emplacement = emplacement;    
+    }
     public String getTypeAction() {
         return typeAction;    
     }
@@ -35,6 +44,10 @@ public class Actionneur extends Dispositif {
     public String getEmplacement() {
         return emplacement;    
     }
+    
+    public  int getobjetConnecteId() {
+        return objetConnecteId;    
+    }    
     @Override
     public String toString() {
         return super.toString() + ", Type d'Action: " + typeAction + ", Emplacement: " + emplacement;
@@ -46,7 +59,6 @@ public class Actionneur extends Dispositif {
             Random random = new Random();
             // List<Donne> fileDonnees = new ArrayList<>();
             Queue<DonneObject> fileDonnees = new LinkedList<>();
-            AppareilDAO appareilDAO = new AppareilDAO(dbConnection.getConnection());
 
             for (int i = 0; i < 10; i++) {
                 String valeurMesure = String.format("%.2f", 10 + (100 - 10) * random.nextDouble());

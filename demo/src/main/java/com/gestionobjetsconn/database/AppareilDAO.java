@@ -6,6 +6,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -159,10 +160,11 @@ public class AppareilDAO {
     }
 
     
-    public void afficherObjetConnectes() throws SQLException {
+    public List<ObjetConnecte> afficherObjetConnectes() throws SQLException {
         // SQL query to select all from ObjetConnecte table
         String sql = "SELECT * FROM ObjetConnecte ORDER BY id";
-    
+        List<ObjetConnecte> objetsConnectes = new ArrayList<>();
+        
         try (PreparedStatement pstmt = connection.prepareStatement(sql);
              ResultSet resultSet = pstmt.executeQuery()) {
     
@@ -173,18 +175,29 @@ public class AppareilDAO {
     
             // Iterate through the result set and print each record
             while (resultSet.next()) {
+                
                 int id = resultSet.getInt("id");
                 String nom = resultSet.getString("nom");
                 String deviceID = resultSet.getString("deviceID");
                 String adresseIP = resultSet.getString("adresseIP");
                 boolean etat = resultSet.getBoolean("etat");
                 String etatString = etat ? "actif" : "inactif";
-    
+                
+                objetsConnectes.add(new ObjetConnecte(
+                    id,
+                    nom,
+                    deviceID,
+                    adresseIP,
+                    etat
+                ));
+
                 // Print each row
                 System.out.printf("| %-2d | %-17s | %-15s | %-11s | %-7s |\n", id, nom, deviceID, adresseIP, etatString);
             }
             System.out.println("+----+-------------------+-----------------+-------------+---------+");
         }
+        
+        return objetsConnectes;
     }
         
     public void afficherDispositif() throws SQLException {
@@ -297,7 +310,7 @@ public class AppareilDAO {
         }
     } 
 
-    public void mettreAJourAppareil(Object appareil, int idAppareil) throws SQLException {
+    public boolean mettreAJourAppareil(Object appareil, int idAppareil) throws SQLException {
         
         if (appareil instanceof ObjetConnecte) {
             // Mettre à jour un ObjetConnecte
@@ -309,7 +322,8 @@ public class AppareilDAO {
                 pstmt.setString(3, objetConnecte.getadresseIP());
                 pstmt.setBoolean(4, objetConnecte.getEtat());
                 pstmt.setInt(5, idAppareil);
-                pstmt.executeUpdate();
+                int rowsUpdated = pstmt.executeUpdate();
+                return rowsUpdated > 0;
             }
         } else if (appareil instanceof Dispositif) {
             // Mettre à jour un Dispositif (Capteur ou Actionneur)
@@ -320,7 +334,7 @@ public class AppareilDAO {
                 pstmtDispositif.setString(1, dispositif.getNom());
                 pstmtDispositif.setBoolean(2, dispositif.getEtat());
                 pstmtDispositif.setInt(3, idAppareil);
-                pstmtDispositif.executeUpdate();
+                
             }    
 
             if (dispositif instanceof Capteur) {
@@ -331,7 +345,8 @@ public class AppareilDAO {
                     pstmt.setString(1, capteur.getTypeMesure());
                     pstmt.setString(2, capteur.getUniteMesure());
                     pstmt.setInt(3, idAppareil);
-                    pstmt.executeUpdate();
+                    int rowsUpdated = pstmt.executeUpdate();
+                    return rowsUpdated > 0;
                 }
             } else if (dispositif instanceof Actionneur) {
                 Actionneur actionneur = (Actionneur) dispositif;
@@ -341,12 +356,14 @@ public class AppareilDAO {
                     pstmt.setString(1, actionneur.getTypeAction());
                     pstmt.setString(2, actionneur.getEmplacement());
                     pstmt.setInt(3, idAppareil);
-                    pstmt.executeUpdate();
+                    int rowsUpdated = pstmt.executeUpdate();
+                    return rowsUpdated > 0;
                 }
             }
         } else {
             System.out.println("Type d'appareil non reconnu pour la mise à jour.");
         }
+        return false;
     }
     
 
@@ -447,5 +464,192 @@ public class AppareilDAO {
     //         pstmt.executeBatch();
     //     }
     // }
+    public ObjetConnecte fetchObjetConnecteById(int id) throws SQLException {
+        String sql = "SELECT * FROM ObjetConnecte WHERE id = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setInt(1, id);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return new ObjetConnecte(
+                        rs.getInt("id"),
+                        rs.getString("nom"),
+                        rs.getString("deviceID"),
+                        rs.getString("adresseIP"),
+                        rs.getBoolean("etat")
+                    );
+                }
+            }
+        }
+        return null;
+    }
+    
+    public boolean updateObjetConnecte(ObjetConnecte objetConnecte) throws SQLException {
+        String sql = "UPDATE ObjetConnecte SET nom = ?, deviceID = ?, adresseIP = ?, etat = ? WHERE id = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setString(1, objetConnecte.getNom());
+            pstmt.setString(2, objetConnecte.getdeviceID());
+            pstmt.setString(3, objetConnecte.getadresseIP());
+            pstmt.setBoolean(4, objetConnecte.getEtat());
+            pstmt.setInt(5, objetConnecte.getID());
+    
+            int rowsUpdated = pstmt.executeUpdate();
+            return rowsUpdated > 0;
+        }
+    }
+    
+    public boolean deleteObjetConnecteById(int id) throws SQLException {
+        String sql = "DELETE FROM ObjetConnecte WHERE id = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setInt(1, id);
+    
+            int rowsDeleted = pstmt.executeUpdate();
+            return rowsDeleted > 0;
+        }
+    }
+    
+    public List<Actionneur> afficherActionneurs() throws SQLException {
+        // SQL query to select all from ObjetConnecte table
+        String sql = "SELECT * FROM ObjetConnecte ORDER BY id";
+        List<Actionneur> Actionneurs = new ArrayList<>();
+        
+        try (PreparedStatement pstmt = connection.prepareStatement(sql);
+             ResultSet resultSet = pstmt.executeQuery()) {
 
+            while (resultSet.next()) {
+                
+                int id = resultSet.getInt("id");
+                int objetConnecteId = resultSet.getInt("objetConnecteId");
+                String nom = resultSet.getString("nom");
+                String typeAction = resultSet.getString("typeAction");
+                String emplacement = resultSet.getString("emplacement");
+                boolean etat = resultSet.getBoolean("etat");
+                String etatString = etat ? "actif" : "inactif";
+                
+                Actionneurs.add(new Actionneur(
+                    id,
+                    nom,
+                    etat,
+                    typeAction,
+                    emplacement,
+                    objetConnecteId
+                ));
+
+            }
+        }
+        
+        return Actionneurs;
+    }
+        
+    public List<Actionneur> fetchActionneursByObjetConnecteId(int objetConnecteId) throws SQLException {
+        List<Actionneur> actionneurs = new ArrayList<>();
+        String sql = "SELECT a.dispositifId, d.nom, d.etat, a.typeAction, a.emplacement, d.objetConnecteId FROM Actionneur a INNER JOIN Dispositif d ON a.dispositifId = d.id WHERE d.objetConnecteId = ?";
+
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setInt(1, objetConnecteId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+
+                    Actionneur actionneur = new Actionneur(
+                        rs.getInt("dispositifId"),
+                        rs.getString("nom"),
+                        rs.getBoolean("etat"),
+                        rs.getString("typeAction"),
+                        rs.getString("emplacement"),
+                        objetConnecteId 
+                    );
+                    actionneurs.add(actionneur);
+                }
+            }
+        }
+        return actionneurs;
+    }
+    
+    public List<Capteur> fetchCapteursByObjetConnecteId(int objetConnecteId) throws SQLException {
+        List<Capteur> capteurs = new ArrayList<>();
+        String sql = "SELECT c.dispositifId, d.nom, d.etat, c.typeMesure, c.uniteMesure, d.objetConnecteId FROM Capteur c INNER JOIN Dispositif d ON c.dispositifId = d.id WHERE d.objetConnecteId = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setInt(1, objetConnecteId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+
+                    Capteur capteur = new Capteur(
+                        rs.getInt("dispositifId"),
+                        rs.getString("nom"),
+                        rs.getBoolean("etat"),
+                        rs.getString("typeMesure"),
+                        rs.getString("uniteMesure"),
+                        objetConnecteId 
+                    );
+                    capteurs.add(capteur);
+                }
+            }
+        }
+        return capteurs;
+    }
+
+    public Actionneur fetchActionneurById(int id) throws SQLException {
+        String sql = "SELECT a.dispositifId, d.nom, d.etat, a.typeAction, a.emplacement, d.objetConnecteId FROM Actionneur a INNER JOIN Dispositif d ON a.dispositifId = d.id WHERE d.id = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setInt(1, id);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return new Actionneur(
+                        rs.getInt("dispositifId"),
+                        rs.getString("nom"),
+                        rs.getBoolean("etat"),
+                        rs.getString("typeAction"),
+                        rs.getString("emplacement"),
+                        rs.getInt("objetConnecteId")
+                    );
+                }
+            }
+        }
+        return null;
+    }
+
+    public boolean updateActionneur(Actionneur actionneur) throws SQLException {
+        boolean updated = false;
+        String updateDispositifSql = "UPDATE Dispositif SET nom = ?, etat = ? , objetConnecteId = ? WHERE id = ?";
+        String updateActionneurSql = "UPDATE Actionneur SET typeAction = ?, emplacement = ? WHERE dispositifId = ?";
+        
+        try (
+            PreparedStatement updateDispositifStmt = connection.prepareStatement(updateDispositifSql);
+            PreparedStatement updateActionneurStmt = connection.prepareStatement(updateActionneurSql);
+        ) {
+            // Mise à jour dans la table Dispositif
+            updateDispositifStmt.setString(1, actionneur.getNom());
+            updateDispositifStmt.setBoolean(2, actionneur.getEtat());
+            updateDispositifStmt.setInt(3, actionneur.getobjetConnecteId()); // Ici, 'id' est l'ID du dispositif
+            updateDispositifStmt.setInt(4, actionneur.getID()); // Ici, 'id' est l'ID du dispositif
+            int dispositifRowsUpdated = updateDispositifStmt.executeUpdate();
+    
+            // Mise à jour dans la table Actionneur
+            updateActionneurStmt.setString(1, actionneur.getTypeAction());
+            updateActionneurStmt.setString(2, actionneur.getEmplacement());
+            updateActionneurStmt.setInt(3, actionneur.getID()); // Ici, 'id' est l'ID du dispositif
+            int actionneurRowsUpdated = updateActionneurStmt.executeUpdate();
+    
+            // Vérifie si les deux mises à jour ont réussi
+            updated = (dispositifRowsUpdated > 0 && actionneurRowsUpdated > 0);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            // Gérer l'exception comme vous le jugez nécessaire
+        }
+    
+        return updated;
+    }
+    
+
+    
+    public boolean deleteActionneurById(int id) throws SQLException {
+        String sql = "DELETE FROM Actionneur WHERE dispositifId = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setInt(1, id);
+    
+            int rowsDeleted = pstmt.executeUpdate();
+            return rowsDeleted > 0;
+        }
+    }
+
+         
 }

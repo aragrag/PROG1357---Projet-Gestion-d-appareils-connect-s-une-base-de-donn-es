@@ -53,7 +53,9 @@ public class ObjetConnecte {
     public void setNom(String nom) {
         this.nom = nom;
     }  
-
+    public void setID(int id) {
+        this.id = id;
+    }  
     // Méthodes pour ajouter et retirer des dispositifs
     public void ajouterDispositif(Dispositif dispositif) {
         dispositifs.add(dispositif);

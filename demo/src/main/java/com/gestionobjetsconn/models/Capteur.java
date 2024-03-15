@@ -4,8 +4,6 @@ import java.sql.SQLException;
 import java.util.Random;
 import java.util.Stack;
 
-
-import com.gestionobjetsconn.database.AppareilDAO;
 import com.gestionobjetsconn.database.DatabaseConnection;
 
 
@@ -47,7 +45,6 @@ public class Capteur extends Dispositif {
             Random random = new Random();
             // List<Donne> pileDonnees = new LinkedList<>();
             Stack<DonneObject> pileDonnees = new Stack<>();
-            AppareilDAO appareilDAO = new AppareilDAO(dbConnection.getConnection());
 
             for (int i = 0; i < 10; i++) {
                 String valeurMesure = String.format("%.2f", 10 + (100 - 10) * random.nextDouble());

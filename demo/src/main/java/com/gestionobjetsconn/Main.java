@@ -2,8 +2,6 @@ package com.gestionobjetsconn;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Scanner;
 
@@ -11,20 +9,10 @@ import com.gestionobjetsconn.database.AppareilDAO;
 import com.gestionobjetsconn.database.DatabaseConnection;
 import com.gestionobjetsconn.models.Actionneur;
 import com.gestionobjetsconn.models.Capteur;
-import com.gestionobjetsconn.models.DonneObject;
 import com.gestionobjetsconn.models.ObjetConnecte;
 
 
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.InetSocketAddress;
-import com.gestionobjetsconn.AppHttpServer;
 
 
 public class Main {
@@ -127,15 +115,18 @@ public class Main {
         // Associer le gestionnaire de données au chemin "/receive-data"
         server.createContext("/receive-data", new AppHttpServer.GeneralHandler());
 
-        // Associer le gestionnaire de données au chemin "/objetsconnectes"
+        // Associer le gestionnaire de données au chemin "/objetsconnecte"
         server.createContext("/objetsconnecte", new AppHttpServer.GeneralHandler());  
         
         // Associer le gestionnaire de données au chemin "/actionneur"
         server.createContext("/actionneur", new AppHttpServer.GeneralHandler());          
    
         // Associer le gestionnaire de données au chemin "/capteur"
-        server.createContext("/capteur", new AppHttpServer.GeneralHandler());  
+        server.createContext("/capteurs", new AppHttpServer.GeneralHandler());  
         
+        // Associer le gestionnaire de données au chemin "/objetsconnectes"
+        server.createContext("/objetsconnectes", new AppHttpServer.GeneralHandler());
+
         
         // Démarrer le serveur
         server.start();
