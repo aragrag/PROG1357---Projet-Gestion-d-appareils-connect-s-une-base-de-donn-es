@@ -73,8 +73,9 @@ const ActionneurForm = () => {
             if(actionneurId) {
                 navigate(`/actionneur/${actionneurId}`);
             } else {
-                console.error("Actionneur ID not found in response");
+                // console.error("Actionneur ID not found in response");
                 // Gestion d'erreur ou redirection alternative
+                navigate('/');
             }
         } catch (error) {
             console.error('Error:', error);

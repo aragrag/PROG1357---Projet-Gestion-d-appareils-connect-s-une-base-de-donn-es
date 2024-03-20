@@ -73,6 +73,9 @@ const deleteCapteur = (id) => {
     return axios.delete(`${BASE_URL}/capteur/${id}`);
 };
 
+const Graphpage = (id) => {
+    return axios.get(`${BASE_URL}/data/${id}`);
+};
 
 // Export all functions
 export {
@@ -90,5 +93,7 @@ export {
     updateActionneur,
     addCapteur,
     fetchCapteurById,
-    updateCapteur
+    updateCapteur,
+    Graphpage
+    
 };

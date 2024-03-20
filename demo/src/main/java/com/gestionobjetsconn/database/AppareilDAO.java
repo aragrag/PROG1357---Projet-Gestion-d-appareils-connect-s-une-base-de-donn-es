@@ -1,6 +1,9 @@
 package com.gestionobjetsconn.database;
 
-import java.util.Scanner; 
+import java.util.Scanner;
+
+import javax.xml.crypto.Data;
+
 import java.sql.Connection;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -15,6 +18,7 @@ import com.gestionobjetsconn.models.Actionneur;
 import com.gestionobjetsconn.models.Capteur;
 import com.gestionobjetsconn.models.Dispositif;
 import com.gestionobjetsconn.models.ObjetConnecte;
+import com.google.gson.Gson;
 import com.gestionobjetsconn.models.DonneObject;
 
 public class AppareilDAO {
@@ -421,7 +425,7 @@ public class AppareilDAO {
     
 
     public void insererDonneesEnMasse(Collection<DonneObject> donnees) throws SQLException {
-        String sql = "INSERT INTO Data (objetConnecteId, typeData, valeur) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO Data (objetConnecteId, typeData, valeur, date_entry) VALUES (?, ?, ?, ?)";
         connection.setAutoCommit(false); // Pour gérer la transaction manuellement
 
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
@@ -429,6 +433,7 @@ public class AppareilDAO {
                 pstmt.setInt(1, donnee.getIDbyName(donnee.getdeviceID()));
                 pstmt.setString(2, donnee.getTypeData());
                 pstmt.setString(3, donnee.getValeur());
+                pstmt.setString(4, donnee.getEntryDate());
                 pstmt.addBatch();
             }
             pstmt.executeBatch();
@@ -446,24 +451,25 @@ public class AppareilDAO {
         System.err.println(queue.size());
 
         // Vérifier si la taille de la queue dépasse le seuil pour l'insertion en masse
-        if (queue.size() >= 20) {
+        if (queue.size() >= 2) {
             insererDonneesEnMasse(queue);
             queue.clear(); // Nettoyer la queue après l'insertion
         }
     }
 
-    // public void insererData(int objetConnecteId, Collection<DonneObject> donnees) throws SQLException {
-    //     String sql = "INSERT INTO Data (objetConnecteId, typeData, valeur) VALUES (?, ?, ?)";
-    //     try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-    //         for ( DonneObject donnee : donnees) {
-    //             pstmt.setInt(1, objetConnecteId);
-    //             pstmt.setString(2, donnee.getTypeData());
-    //             pstmt.setString(3, donnee.getValeur());
-    //             pstmt.addBatch();
-    //         }
-    //         pstmt.executeBatch();
-    //     }
-    // }
+    public void insererData(int objetConnecteId, Collection<DonneObject> donnees) throws SQLException {
+        String sql = "INSERT INTO Data (objetConnecteId, typeData, valeur, date_entry) VALUES (?, ?, ?)";
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            for ( DonneObject donnee : donnees) {
+                pstmt.setInt(1, objetConnecteId);
+                pstmt.setString(2, donnee.getTypeData());
+                pstmt.setString(3, donnee.getValeur());
+                pstmt.setString(4, donnee.getEntryDate());
+                pstmt.addBatch();
+            }
+            pstmt.executeBatch();
+        }
+    }
     public ObjetConnecte fetchObjetConnecteById(int id) throws SQLException {
         String sql = "SELECT * FROM ObjetConnecte WHERE id = ?";
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
@@ -706,6 +712,40 @@ public class AppareilDAO {
             int rowsDeleted = pstmt.executeUpdate();
             return rowsDeleted > 0;
         }
+    }
+
+    public String getGraphData(int dispositifId) {
+        String sql = "SELECT d.id AS data_id, d.typeData, d.valeur, d.timestamp, " +
+                     "o.nom AS objet_nom, o.deviceID, o.adresseIP, o.etat AS objet_etat, " +
+                     "c.typeMesure, c.uniteMesure, d.date_entry AS date " +
+                     "FROM Data d " +
+                     "INNER JOIN ObjetConnecte o ON d.objetConnecteId = o.id " +
+                     "INNER JOIN Dispositif disp ON o.id = disp.objetConnecteId " +
+                     "INNER JOIN Capteur c ON disp.id = c.dispositifId " +
+                     "WHERE c.dispositifId = ?;";
+
+        List<DonneObject> entries = new ArrayList<>();
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            
+            pstmt.setInt(1, dispositifId);
+            
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    DonneObject entry = new DonneObject();
+                    entry.setTypeData(rs.getString("typeData"));
+                    entry.setValeur(rs.getString("valeur"));
+                    entry.setEntryDate(rs.getString("date"));
+                    entries.add(entry);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            // Handle exception
+        }
+
+        // Convert list of entries to JSON
+        Gson gson = new Gson();
+        return gson.toJson(entries);
     }
          
 }

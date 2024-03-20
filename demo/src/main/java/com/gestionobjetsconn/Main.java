@@ -114,6 +114,7 @@ public class Main {
         
         // Associer le gestionnaire de données au chemin "/receive-data"
         server.createContext("/receive-data", new AppHttpServer.GeneralHandler());
+        server.createContext("/data-capteur", new AppHttpServer.GeneralHandler());
 
         // Associer le gestionnaire de données au chemin "/objetsconnecte"
         server.createContext("/objetsconnecte", new AppHttpServer.GeneralHandler());  

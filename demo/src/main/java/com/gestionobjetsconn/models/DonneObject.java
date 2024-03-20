@@ -10,6 +10,7 @@ public class DonneObject {
     private String deviceID;
     private String typeData;
     private String valeur;
+    private String date_entry;
 
     public DonneObject() {
     }
@@ -18,6 +19,11 @@ public class DonneObject {
         this.typeData = typeData;
         this.valeur = valeur;
     }
+    public DonneObject(String typeData, String valeur, String date_entry) {
+        this.typeData = typeData;
+        this.valeur = valeur;
+        this.date_entry = date_entry;
+    }    
     public String getdeviceID() {
         return deviceID;
     }
@@ -37,11 +43,15 @@ public class DonneObject {
     public String getValeur() {
         return valeur;
     }
-
+    public String getEntryDate() {
+        return date_entry;
+    }
     public void setValeur(String valeur) {
         this.valeur = valeur;
     }
-
+    public void setEntryDate(String string) {
+        this.date_entry = date_entry;
+    }
     @Override
     public String toString() {
         return "DonneObject{" +
@@ -68,6 +78,8 @@ public class DonneObject {
             throw new SQLException("Erreur lors de la récupération de l'ID par le nom", e);
         }
     }
+
+
     
 
 }

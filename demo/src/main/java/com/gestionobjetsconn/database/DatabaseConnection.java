@@ -51,7 +51,7 @@ public class DatabaseConnection implements AutoCloseable {
                 statement.execute("CREATE TABLE IF NOT EXISTS Dispositif (id SERIAL PRIMARY KEY, nom VARCHAR(255), etat BOOLEAN, objetConnecteId INT, FOREIGN KEY (objetConnecteId) REFERENCES ObjetConnecte(id) ON DELETE CASCADE);");
                 statement.execute("CREATE TABLE IF NOT EXISTS Capteur (dispositifId INT PRIMARY KEY, typeMesure VARCHAR(255), uniteMesure VARCHAR(255), FOREIGN KEY (dispositifId) REFERENCES Dispositif(id) ON DELETE CASCADE);");
                 statement.execute("CREATE TABLE IF NOT EXISTS Actionneur (dispositifId INT PRIMARY KEY, typeAction VARCHAR(255), emplacement VARCHAR(255), FOREIGN KEY (dispositifId) REFERENCES Dispositif(id) ON DELETE CASCADE);");
-                statement.execute("CREATE TABLE IF NOT EXISTS Data (id SERIAL PRIMARY KEY, objetConnecteId INT, typeData VARCHAR(255), valeur VARCHAR(255), timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY (objetConnecteId) REFERENCES ObjetConnecte(id) ON DELETE CASCADE);");
+                statement.execute("CREATE TABLE IF NOT EXISTS Data (id SERIAL PRIMARY KEY, objetConnecteId INT, typeData VARCHAR(255), valeur VARCHAR(255), date_entry TIMESTAMP, timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY (objetConnecteId) REFERENCES ObjetConnecte(id) ON DELETE CASCADE);");
             } catch (SQLException e) {
             e.printStackTrace();
             throw new SQLException("Erreur lors de la création des tables", e);

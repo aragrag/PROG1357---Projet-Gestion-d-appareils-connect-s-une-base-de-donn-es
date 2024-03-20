@@ -70,6 +70,7 @@ const CapteurForm = () => {
                 navigate(`/capteur/${capteurId}`);
             } else {
                 console.error("Capteur ID not found in response");
+                navigate('/');
             }
         } catch (error) {
             console.error('Error:', error);

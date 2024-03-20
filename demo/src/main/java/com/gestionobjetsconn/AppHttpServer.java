@@ -53,7 +53,21 @@ public class AppHttpServer {
                 }
 
                 // Route handling
-                if (path.equals("/receive-data") && "POST".equalsIgnoreCase(method)) {
+                if (path.matches("^/data-capteur/(\\d+)$")) {
+                    Matcher matcher = Pattern.compile("^/data-capteur/(\\d+)$").matcher(path);
+                
+                    if (matcher.find()) {
+                        // No need to cast, just parse the group directly to an integer
+                        int dispositifId = Integer.parseInt(matcher.group(1));
+                        System.out.println(dispositifId);
+
+                        String jsonResponse = appareilDAO.getGraphData(dispositifId);
+                        sendResponse(exchange, 200, jsonResponse);
+                                   
+                        
+                    }
+                    // Your subsequent code to fetch capteurs and send response
+                } else if (path.equals("/receive-data") && "POST".equalsIgnoreCase(method)) {
                     String requestBody = readRequestBody(exchange);
                     DonneObject donneObject = gson.fromJson(requestBody, DonneObject.class);
                     appareilDAO.enqueueData(donneObject);
@@ -269,14 +283,14 @@ public class AppHttpServer {
             return reader.lines().collect(Collectors.joining("\n"));
         }
     }
-    private static void sendResponse(HttpExchange exchange, int statusCode, String response) throws IOException {
+    private static void sendResponse(HttpExchange exchange, int statusCode, String dispositifId) throws IOException {
         // Set proper headers for CORS
         setCorsHeaders(exchange);
     
 
-        exchange.sendResponseHeaders(statusCode, response.getBytes().length);
+        exchange.sendResponseHeaders(statusCode, dispositifId.getBytes().length);
         try (OutputStream os = exchange.getResponseBody()) {
-            os.write(response.getBytes());
+            os.write(dispositifId.getBytes());
         }
     }
     private static void setCorsHeaders(HttpExchange exchange) {
